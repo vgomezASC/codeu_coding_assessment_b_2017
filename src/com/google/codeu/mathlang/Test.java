@@ -82,8 +82,33 @@ final class Test {
         });
 
     tester.test(
+        "Two Comments One Line With Many Spaces",
+        lines("note               \"comment 1\"         \"comment 2\";"),
+        new TestCriteria() {
+          @Override
+          public void onTestEnd(CallTable calls) throws Exception {
+            calls.assertNext("note", "comment 1", "comment 2");
+            calls.assertEnd();
+          }
+        });
+
+    tester.test(
         "Two Comments Two Lines",
         lines("note \"comment 1\"",
+              "     \"comment 2\";"),
+        new TestCriteria() {
+          @Override
+          public void onTestEnd(CallTable calls) throws Exception {
+            calls.assertNext("note", "comment 1", "comment 2");
+            calls.assertEnd();
+          }
+        });
+      tester.test(
+        "Two Comments Many Lines",
+        lines("note \"comment 1\"",
+              "",
+              "",
+              "     ",
               "     \"comment 2\";"),
         new TestCriteria() {
           @Override
@@ -103,7 +128,34 @@ final class Test {
             calls.assertEnd();
           }
         });
+      tester.test(
+        "Print One String With Many Spaces, Lines And Semicolons",
+        lines("print \"hello\";;;",
+              " ;;",
+              ";;      ",
+              ";"),
+        new TestCriteria() {
+          @Override
+          public void onTestEnd(CallTable calls) throws Exception {
+            calls.assertNext("print", "hello");
+            calls.assertEnd();
+          }
+        });
 
+    tester.test(
+        "Print Two Strings With Many Spaces, Lines And Semicolons",
+        lines("print \"hello\" ",
+              "      ",
+              "      ",
+              "      ",
+              "\"world\";;;;;;"),
+        new TestCriteria() {
+          @Override
+          public void onTestEnd(CallTable calls) throws Exception {
+            calls.assertNext("print", "hello", "world");
+            calls.assertEnd();
+          }
+        });
     tester.test(
         "Print Two Strings",
         lines("print \"hello\" \"world\";"),
@@ -116,6 +168,21 @@ final class Test {
         });
 
     tester.test(
+        "Print On Different Lines With Many Spaces, Lines And Semicolons",
+        lines("print \"hello\";;",
+              "  ;    ",
+              "     ; ",
+              "     ; ",
+              "print \"world\";;"),
+        new TestCriteria() {
+          @Override
+          public void onTestEnd(CallTable calls) throws Exception {
+            calls.assertNext("print", "hello");
+            calls.assertNext("print", "world");
+            calls.assertEnd();
+          }
+        });
+      tester.test(
         "Print On Different Lines",
         lines("print \"hello\";",
               "print \"world\";"),
@@ -217,6 +284,25 @@ final class Test {
     tester.test(
         "Math with no spaces",
         lines("let x=5+3;",
+              "print x;"),
+        new TestCriteria() {
+          @Override
+          public void onTestEnd(CallTable calls) throws Exception {
+            calls.assertNext("let", new AddOperation(5), new AddOperation(3));
+            calls.assertNext("print", "8.0"); // use print to verify result
+            calls.assertEnd();
+          }
+        });
+     tester.test(
+        "Math with no spaces but a heart",
+        lines("let x=5+3;",
+              "  ;;;   ;;;  ",
+              " ;;;;; ;;;;; ",
+              ";;;;;;;;;;;;;",
+              ";;;;;;;;;;;;;",
+              "   ;;;;;;;   ",
+              "     ;;;     ",
+              "      ;      ",
               "print x;"),
         new TestCriteria() {
           @Override
